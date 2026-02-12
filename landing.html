@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>KAKDWIP SHUTTLE SHOWDOWN 2026</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+body{background:#111;color:#fff;min-height:100vh}
+
+.overlay{padding:20px;padding-bottom:180px;text-align:center}
+h1,h2{color:#ffcc00;margin:12px 0}
+
+.team-inputs{
+  max-width:900px;margin:auto;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:8px;
+}
+.team-inputs input{padding:8px;border-radius:6px;border:none}
+
+.groups,.matches{
+  display:flex;gap:15px;
+  justify-content:center;flex-wrap:wrap;
+}
+
+.group,.match-box{
+  width:280px;
+  background:rgba(255,255,255,.12);
+  padding:14px;border-radius:12px;
+}
+
+ul{list-style:none}
+li{padding:6px;border-bottom:1px solid rgba(255,255,255,.25)}
+
+.button-bar{
+  position:fixed;bottom:30px;width:100%;
+  background:#000;padding:10px;
+  display:flex;gap:6px;
+  justify-content:center;flex-wrap:wrap;z-index:1000;
+}
+
+button{
+  padding:10px 16px;border:none;
+  border-radius:20px;background:#ffcc00;
+  font-weight:bold;cursor:pointer;
+}
+button:disabled{background:#666}
+button.active{animation:blink 1s infinite}
+
+@keyframes blink{
+  0%{box-shadow:0 0 5px #ffcc00}
+  50%{box-shadow:0 0 18px #ffcc00}
+  100%{box-shadow:0 0 5px #ffcc00}
+}
+
+.loader{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.9);
+  display:none;align-items:center;
+  justify-content:center;flex-direction:column;
+  z-index:2000;
+}
+.shuttle{font-size:48px;animation:fly 1s infinite alternate}
+@keyframes fly{from{transform:translateX(-40px)}to{transform:translateX(40px)}}
+</style>
+</head>
+
+<body>
+
+<div class="overlay">
+<h1>🏸KAKDWIP SHUTTLE SHOWDOWN 2026.🏸</h1>
+<h2>Organised By - Badminton Lovers</h2>
+
+<div class="team-inputs" id="teamInputs"></div>
+
+<h2 id="groupSection">Groups</h2>
+<div class="groups">
+  <div class="group"><h2>Group A</h2><ul id="groupA"></ul></div>
+  <div class="group"><h2>Group B</h2><ul id="groupB"></ul></div>
+  <div class="group"><h2>Group C</h2><ul id="groupC"></ul></div>
+</div>
+
+<h2 id="matchSection">🏸 Super 24</h2>
+<div class="matches">
+  <div class="match-box"><h2>A</h2><ul id="matchA"></ul></div>
+  <div class="match-box"><h2>B</h2><ul id="matchB"></ul></div>
+  <div class="match-box"><h2>C</h2><ul id="matchC"></ul></div>
+</div>
+
+<h2 id="nextSection">🏆 Super 12</h2>
+<div class="matches">
+  <div class="match-box"><h2>A</h2><ul id="nextA"></ul></div>
+  <div class="match-box"><h2>B</h2><ul id="nextB"></ul></div>
+  <div class="match-box"><h2>C</h2><ul id="nextC"></ul></div>
+</div>
+
+<h2 id="superSection">🔥 Super Six League</h2>
+<div class="matches">
+  <div class="match-box"><h2>Group E</h2><ul id="groupE"></ul></div>
+  <div class="match-box"><h2>Group F</h2><ul id="groupF"></ul></div>
+</div>
+
+<h2 id="semiFinalSection">🥇 Semi Final</h2>
+<div class="matches">
+  <div class="match-box">
+    <ul>
+      <li>Group E Top 🆚 Group F 2nd</li>
+      <li>Group F Top 🆚 Group E 2nd</li>
+    </ul>
+  </div>
+</div>
+
+<h2 id="finalSection">🏆 Final</h2>
+<div class="matches">
+  <div class="match-box">
+    <ul>
+      <li>Semi Final 1 Winner <br>
+🆚 <br> 
+Semi Final 2 Winner</li>
+    </ul>
+  </div>
+</div>
+
+</div>
+
+<div class="button-bar">
+  <button id="drawBtn" onclick="drawGroups()">Draw Groups</button>
+  <button id="matchBtn" onclick="groupMatches()" disabled>Group Matches</button>
+  <button id="nextBtn" onclick="nextRound()" disabled>Next Round</button>
+  <button id="superBtn" onclick="superSix()" disabled>Super Six</button>
+<button onclick="exportPDF()">Export PDF</button>
+</div>
+
+
+<div class="loader" id="loader">
+  <div class="shuttle">🏸</div>
+  <p id="loaderText">Processing...</p>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+const teamInputs=document.getElementById("teamInputs");
+const loader=document.getElementById("loader");
+const loaderText=document.getElementById("loaderText");
+const matchBtn=document.getElementById("matchBtn");
+const nextBtn=document.getElementById("nextBtn");
+const superBtn=document.getElementById("superBtn");
+const MAX=8;
+
+let groups={A:[],B:[],C:[]};
+
+for(let i=1;i<=24;i++){
+  let inp=document.createElement("input");
+  inp.placeholder="Team "+i;
+  teamInputs.appendChild(inp);
+}
+
+function shuffle(a){
+  for(let i=a.length-1;i>0;i--){
+    let j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+}
+
+function showLoader(text,cb){
+  loaderText.textContent=text;
+  loader.style.display="flex";
+  setTimeout(()=>{loader.style.display="none";cb();},700);
+}
+
+function drawGroups(){
+  const teams=[...document.querySelectorAll("input")]
+    .map(i=>i.value.trim()).filter(Boolean);
+
+  if(teams.length!==24){
+    alert("Enter exactly 24 teams");return;
+  }
+
+  showLoader("Drawing Groups...",()=>{
+    groups={A:[],B:[],C:[]};
+    const map={};
+
+    teams.forEach(t=>{
+      const p=t.substring(0,2).toUpperCase();
+      if(!map[p]) map[p]=[];
+      map[p].push(t);
+    });
+
+    let remaining=[];
+
+    Object.values(map).forEach(list=>{
+      shuffle(list);
+
+      while(list.length>=4){
+        const block=list.splice(0,4);
+        shuffle(block);
+        const g=["A","B","C"];shuffle(g);
+        const third=g[2];
+        groups[g[0]].push(block[0]);
+        groups[g[1]].push(block[1]);
+        groups[third].push(block[2],block[3]);
+      }
+
+      if(list.length===3){
+        ["A","B","C"].forEach((g,i)=>groups[g].push(list[i]));
+      }else if(list.length===2){
+        const g=["A","B","C"];shuffle(g);
+        groups[g[0]].push(list[0]);
+        groups[g[1]].push(list[1]);
+      }else if(list.length===1){
+        remaining.push(list[0]);
+      }
+    });
+
+    shuffle(remaining);
+    remaining.forEach(t=>{
+      const avail=["A","B","C"].filter(g=>groups[g].length<MAX);
+      groups[avail[Math.floor(Math.random()*avail.length)]].push(t);
+    });
+
+    renderGroups();
+    matchBtn.disabled=false;
+  });
+}
+
+function renderGroups(){
+  ["A","B","C"].forEach(g=>{
+    document.getElementById("group"+g).innerHTML=
+      groups[g].map(t=>`<li>${t}</li>`).join("");
+  });
+}
+
+function groupMatches(){
+  showLoader("Group Matches...",()=>{
+    ["A","B","C"].forEach(g=>{
+      let t=[...groups[g]];shuffle(t);
+      document.getElementById("match"+g).innerHTML=
+        `<li>${t[0]} 🆚 ${t[1]}</li>
+         <li>${t[2]} 🆚 ${t[3]}</li>
+         <li>${t[4]} 🆚 ${t[5]}</li>
+         <li>${t[6]} 🆚 ${t[7]}</li>`;
+    });
+    nextBtn.disabled=false;
+  });
+}
+
+function nextRound(){
+  showLoader("Next Round...",()=>{
+    ["nextA","nextB","nextC"].forEach(id=>{
+      document.getElementById(id).innerHTML=
+        `<li>Winner 1 🆚 Winner 2</li>
+         <li>Winner 3 🆚 Winner 4</li>`;
+    });
+    superBtn.disabled=false;
+  });
+}
+
+function exportPDF(){
+  const { jsPDF } = window.jspdf;
+
+  html2canvas(document.body, {
+    scale: 2,
+    useCORS: true
+  }).then(canvas => {
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF("p", "mm", "a4");
+
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+
+    const imgWidth = pageWidth;
+    const imgHeight = canvas.height * imgWidth / canvas.width;
+
+    let heightLeft = imgHeight;
+    let position = 0;
+
+    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+
+    while(heightLeft > 0){
+      position = heightLeft - imgHeight;
+      pdf.addPage();
+      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+    }
+
+    pdf.save("Tournament_Full_Screen.pdf");
+  });
+}
+
+function superSix(){
+  showLoader("Super Six...",()=>{
+    let six=[
+      "Group A 1st Match Winner","Group A 2nd Match Winner",
+      "Group B 1st Match Winner","Group B 1st Match Winner",
+      "Group C 1st Match Winner","Group C 1st Match Winner"
+    ];
+    shuffle(six);
+    document.getElementById("groupE").innerHTML=
+      six.slice(0,3).map(t=>`<li>${t}</li>`).join("");
+    document.getElementById("groupF").innerHTML=
+      six.slice(3).map(t=>`<li>${t}</li>`).join("");
+  });
+}
+</script>
+
+</body>
+</html>
