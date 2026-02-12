@@ -11,13 +11,13 @@ body{background:#111;color:#fff;min-height:100vh}
 .overlay{padding:20px;padding-bottom:180px;text-align:center}
 h1,h2{color:#ffcc00;margin:12px 0}
 
-.team-inputs{
+.team-input{
   max-width:900px;margin:auto;
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
   gap:8px;
 }
-.team-inputs input{padding:8px;border-radius:6px;border:none}
+.team-input input{padding:8px;border-radius:6px;border:none}
 
 .groups,.matches{
   display:flex;gap:15px;
@@ -72,7 +72,7 @@ button.active{animation:blink 1s infinite}
 <h1>🏸KAKDWIP SHUTTLE SHOWDOWN 2026.🏸</h1>
 <h2>Organised By - Badminton Lovers</h2>
 
-<div class="team-inputs" id="teamInputs"></div>
+<div class="team-input" id="teamInputs"></div>
 
 <h2 id="groupSection">Groups</h2>
 <div class="groups">
@@ -140,6 +140,19 @@ Semi Final 2 Winner</li>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const savedTeams = JSON.parse(localStorage.getItem("teamNames")) || [];
+    const teamInputs = document.querySelectorAll(".team-input");
+
+    teamInputs.forEach((input, index) => {
+        if (savedTeams[index]) {
+            input.value = savedTeams[index];
+        }
+    });
+});
+</script>
 
 <script>
 const teamInputs=document.getElementById("teamInputs");
