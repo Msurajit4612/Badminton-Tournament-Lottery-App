@@ -80,6 +80,21 @@ button.active{animation:blink 1s infinite}
   }
 }
 
+.spinner-box {
+  display: none;
+  text-align: center;
+  margin: 20px 0;
+}
+
+.spinner {
+  font-size: 48px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
 .animate-box {
   animation: slideUpFade 0.6s ease forwards;
 }
@@ -96,6 +111,10 @@ button.active{animation:blink 1s infinite}
 <div class="team-name-input" id="teamNames"></div>
 
 <h2 id="groupSection">Groups</h2>
+<div id="groupSpinner" class="spinner-box">
+  <div class="spinner">🏸</div>
+  <p id="spinnerText">Drawing...</p>
+</div>
 <div class="groups">
   <div class="group"><h2>Group A</h2><ul id="groupA"></ul></div>
   <div class="group"><h2>Group B</h2><ul id="groupB"></ul></div>
@@ -103,6 +122,10 @@ button.active{animation:blink 1s infinite}
 </div>
 
 <h2 id="matchSection">🏸 Super 24</h2>
+<div id="Super24Spinner" class="spinner-box">
+  <div class="spinner">🏸</div>
+  <p id="Super24spinnerText">Drawing...</p>
+</div>
 <div class="matches">
   <div class="match-box"><h2>A</h2><ul id="matchA"></ul></div>
   <div class="match-box"><h2>B</h2><ul id="matchB"></ul></div>
@@ -250,7 +273,7 @@ function drawGroups(){
   });
 }
 
-function renderGroups() {
+async function renderGroups() {
 
   // Fill group data
   ["A", "B", "C"].forEach(g => {
@@ -258,34 +281,41 @@ function renderGroups() {
       groups[g].map(t => `<li>${t}</li>`).join("");
   });
 
-  // Get group boxes (these are .group divs)
-  const groupA = document.querySelector(".group:nth-child(1)");
-  const groupB = document.querySelector(".group:nth-child(2)");
-  const groupC = document.querySelector(".group:nth-child(3)");
+  const spinner = document.getElementById("groupSpinner");
+  const spinnerText = document.getElementById("spinnerText");
 
-  // Hide all groups first
-  [groupA, groupB, groupC].forEach(g => {
-    g.style.display = "none";
-  });
+  const groupA = document.getElementById("groupA").parentElement;
+  const groupB = document.getElementById("groupB").parentElement;
+  const groupC = document.getElementById("groupC").parentElement;
 
-  // Show sequentially
-  setTimeout(() => {
-    groupA.style.display = "block";
-  }, 2000);
+  // Hide all groups initially
+  [groupA, groupB, groupC].forEach(g => g.style.display = "none");
 
-  setTimeout(() => {
-    groupB.style.display = "block";
-  }, 6000);
+  // Helper delay
+  const wait = ms => new Promise(res => setTimeout(res, ms));
 
-  setTimeout(() => {
-    groupC.style.display = "block";
-  }, 10000);
+  async function revealGroup(groupBox, text) {
+    spinnerText.textContent = text;
+    spinner.style.display = "block";
+
+    await wait(2000);          // 🏸 spinner duration
+
+    spinner.style.display = "none";
+    groupBox.style.display = "block";
+
+    await wait(300);           // small gap before next
+  }
+
+  // Sequential reveal
+  await revealGroup(groupA, "Drawing Group A...");
+  await revealGroup(groupB, "Drawing Group B...");
+  await revealGroup(groupC, "Drawing Group C...");
 }
 
-function groupMatches() {
-  showLoader("Group Matches...", () => {
+async function groupMatches() {
+  showLoader("Group Matches...", async () => {
 
-    // Generate matches
+    // Generate Super 24 matches
     ["A", "B", "C"].forEach(g => {
       let t = [...groups[g]];
       shuffle(t);
@@ -296,30 +326,36 @@ function groupMatches() {
          <li>${t[6]} 🆚 ${t[7]}</li>`;
     });
 
-    // Get Super 24 match boxes
+    const spinner = document.getElementById("Super24Spinner");
+    const spinnerText = document.getElementById("Super24spinnerText");
+
     const matchA = document.getElementById("matchA").parentElement;
     const matchB = document.getElementById("matchB").parentElement;
     const matchC = document.getElementById("matchC").parentElement;
 
-    // Hide all first
-    [matchA, matchB, matchC].forEach(m => {
-      m.style.display = "none";
-    });
+    // Hide all matches initially
+    [matchA, matchB, matchC].forEach(m => m.style.display = "none");
 
-    // Show sequentially
-    setTimeout(() => {
-      matchA.style.display = "block";
-    }, 1000);
+    const wait = ms => new Promise(res => setTimeout(res, ms));
 
-    setTimeout(() => {
-      matchB.style.display = "block";
-    }, 4000);
+    async function revealMatch(matchBox, text) {
+      spinnerText.textContent = text;
+      spinner.style.display = "block";
 
-    setTimeout(() => {
-      matchC.style.display = "block";
-    }, 7000);
+      await wait(2000);        // 🏸 spinner duration
 
-    // Enable next round button
+      spinner.style.display = "none";
+      matchBox.style.display = "block";
+
+      await wait(300);
+    }
+
+    // Sequential reveal
+    await revealMatch(matchA, "Preparing Match A...");
+    await revealMatch(matchB, "Preparing Match B...");
+    await revealMatch(matchC, "Preparing Match C...");
+
+    // Enable next round
     nextBtn.disabled = false;
   });
 }
