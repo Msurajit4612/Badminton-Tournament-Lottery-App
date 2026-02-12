@@ -111,7 +111,6 @@ button.active{animation:blink 1s infinite}
 <div class="team-name-input" id="teamNames"></div>
 
 <h2 id="groupSection">Groups</h2>
-  <audio id="drawMusic" src="shidenbeatsmusic-heartbeat-sound-effect-111218.mp3" preload="auto"></audio>
 <div id="groupSpinner" class="spinner-box">
   <div class="spinner">🏸</div>
   <p id="spinnerText">Drawing...</p>
@@ -284,7 +283,6 @@ async function renderGroups() {
 
   const spinner = document.getElementById("groupSpinner");
   const spinnerText = document.getElementById("spinnerText");
-const music = document.getElementById("drawMusic");
 
   const groupA = document.getElementById("groupA").parentElement;
   const groupB = document.getElementById("groupB").parentElement;
