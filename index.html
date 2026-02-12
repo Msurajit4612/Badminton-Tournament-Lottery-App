@@ -194,22 +194,42 @@ document.getElementById("teamForm").addEventListener("submit", function (e) {
     window.location.href = "landing.html";
 });
 </script>
+
+
+
 <script>
 /* EXPORT FULL PAGE TO PDF */
 function exportPDF(){
-    const area = document.getElementById("captureArea");
+  const { jsPDF } = window.jspdf;
 
-    html2canvas(area,{scale:2}).then(canvas=>{
-        const imgData = canvas.toDataURL("image/png");
-        const { jsPDF } = window.jspdf;
+  html2canvas(document.body, {
+    scale: 2,
+    useCORS: true
+  }).then(canvas => {
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF("p", "mm", "a4");
 
-        const pdf = new jsPDF("p","mm","a4");
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
 
-        pdf.addImage(imgData,"PNG",0,0,pdfWidth,pdfHeight);
-        pdf.save("Kakdwip_Shuttle_Showdown_2026.pdf");
-    });
+    const imgWidth = pageWidth;
+    const imgHeight = canvas.height * imgWidth / canvas.width;
+
+    let heightLeft = imgHeight;
+    let position = 0;
+
+    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+
+    while(heightLeft > 0){
+      position = heightLeft - imgHeight;
+      pdf.addPage();
+      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+    }
+
+    pdf.save("Tournament_Full_Screen.pdf");
+  });
 }
 </script>
 
