@@ -154,9 +154,10 @@ const MAX=8;
 
 let groups={A:[],B:[],C:[]};
 
-for(let i=1;i<=24;i++){
-  let inp=document.createElement("input");
-  inp.placeholder="Team "+i;
+for (let i = 1; i <= 24; i++) {
+  const inp = document.createElement("input");
+  inp.placeholder = "Team " + i;
+  inp.className = "team-input";   // ✅ IMPORTANT
   teamNames.appendChild(inp);
 }
 
@@ -313,15 +314,14 @@ function superSix(){
 window.addEventListener("load", function () {
 
     const teams = JSON.parse(localStorage.getItem("teamNames"));
-
-    console.log("Auto-fill teams:", teams); // DEBUG
+    console.log("Auto-fill teams:", teams);
 
     if (!teams || teams.length !== 24) {
         console.warn("Team data missing or incomplete");
         return;
     }
 
-    const inputs = document.querySelectorAll(".team-name-input");
+    const inputs = document.querySelectorAll(".team-input");
 
     inputs.forEach((input, index) => {
         input.value = teams[index];
