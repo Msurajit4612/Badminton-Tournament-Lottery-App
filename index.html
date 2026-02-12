@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>KAKDWIP SHUTTLE SHOWDOWN 2026</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body{
+    min-height:100vh;
+    background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+    color:#fff;
+    padding:20px;
+}
+
+.container{
+    max-width:1100px;
+    margin:auto;
+}
+
+.header{
+    text-align:center;
+    margin-bottom:25px;
+}
+
+.header h1{
+    font-size:32px;
+    margin-bottom:8px;
+}
+
+.header p{
+    font-size:16px;
+    margin:4px 0;
+    opacity:0.95;
+}
+
+.card{
+    background:rgba(255,255,255,0.1);
+    padding:20px;
+    border-radius:12px;
+    backdrop-filter:blur(8px);
+}
+
+.team-row{
+    display:grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap:10px;
+    margin-bottom:10px;
+}
+
+.team-row input{
+    padding:10px;
+    border-radius:6px;
+    border:none;
+    outline:none;
+    font-size:14px;
+}
+
+.team-row input::placeholder{
+    color:#666;
+}
+
+button{
+    width:100%;
+    margin-top:20px;
+    padding:14px;
+    font-size:16px;
+    font-weight:bold;
+    border:none;
+    border-radius:8px;
+    background:#00c853;
+    color:#000;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#00e676;
+}
+
+/* Mobile responsive */
+@media(max-width:768px){
+    .team-row{
+        grid-template-columns:1fr;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- Header -->
+    <div class="header">
+        <h1>KAKDWIP SHUTTLE SHOWDOWN 2026</h1>
+        <p><strong>Organised By:</strong> Badminton Lovers</p>
+        <p><strong>Date:</strong> 21st & 22nd February, 2026</p>
+        <p><strong>Time:</strong> 5.00 PM</p>
+        <p><strong>Place:</strong> Beside Kakdwip Old Court</p>
+    </div>
+
+    <!-- Input Card -->
+    <div class="card">
+        <h3 style="text-align:center;margin-bottom:15px;">
+            Team & Player Entry (24 Teams)
+        </h3>
+
+        <form id="teamForm">
+
+            <!-- Team 1 -->
+            <div class="team-row">
+                <input type="text" class="team-name" placeholder="Team Name (Team 1)" required>
+                <input type="text" placeholder="Player 1 Name" required>
+                <input type="text" placeholder="Player 2 Name" required>
+            </div>
+
+            <!-- Team 2 -->
+            <div class="team-row">
+                <input type="text" class="team-name" placeholder="Team Name (Team 2)" required>
+                <input type="text" placeholder="Player 1 Name" required>
+                <input type="text" placeholder="Player 2 Name" required>
+            </div>
+
+            <!-- Teams 3 to 24 auto generated -->
+            <script>
+                for(let i=3;i<=24;i++){
+                    document.write(`
+                    <div class="team-row">
+                        <input type="text" class="team-name" placeholder="Team Name (Team ${i})" required>
+                        <input type="text" placeholder="Player 1 Name" required>
+                        <input type="text" placeholder="Player 2 Name" required>
+                    </div>
+                    `);
+                }
+            </script>
+
+            <button type="submit">Proceed</button>
+
+        </form>
+    </div>
+
+</div>
+
+<script>
+document.getElementById("teamForm").addEventListener("submit", function(e){
+    e.preventDefault();
+
+    let teamNames = [];
+    const teamInputs = document.querySelectorAll(".team-name");
+
+    teamInputs.forEach(input => {
+        teamNames.push(input.value.trim());
+    });
+
+    // Save team names to localStorage
+    localStorage.setItem("teamNames", JSON.stringify(teamNames));
+
+    // Redirect to main app
+    window.location.href = "landing.html";
+});
+</script>
+
+</body>
+</html>
