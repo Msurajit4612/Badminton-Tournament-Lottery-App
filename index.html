@@ -178,18 +178,22 @@ button{
 </div>
 
 <script>
-/* SAVE TEAM NAMES AND REDIRECT */
-document.getElementById("teamForm").addEventListener("submit",function(e){
-    e.preventDefault();
+document.getElementById("teamForm").addEventListener("submit", function (e) {
+    e.preventDefault(); // stop page reload
 
-    let teams=[];
-    document.querySelectorAll(".team-name-input").forEach(input=>{
+    const teams = [];
+
+    document.querySelectorAll(".team-name").forEach(input => {
         teams.push(input.value.trim());
     });
 
+    // Save team names
     localStorage.setItem("teamNames", JSON.stringify(teams));
+
+    // Redirect to index.html
     window.location.href = "landing.html";
 });
+</script>
 
 /* EXPORT FULL PAGE TO PDF */
 function exportPDF(){
