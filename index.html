@@ -5,6 +5,10 @@
 <title>KAKDWIP SHUTTLE SHOWDOWN 2026</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<!-- Export libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <style>
 *{
     margin:0;
@@ -21,7 +25,7 @@ body{
 }
 
 .container{
-    max-width:1100px;
+    max-width:1200px;
     margin:auto;
 }
 
@@ -31,14 +35,13 @@ body{
 }
 
 .header h1{
-    font-size:32px;
+    font-size:34px;
     margin-bottom:8px;
 }
 
 .header p{
-    font-size:16px;
     margin:4px 0;
-    opacity:0.95;
+    font-size:16px;
 }
 
 .card{
@@ -48,44 +51,75 @@ body{
     backdrop-filter:blur(8px);
 }
 
-.team-row{
+/* Column Headings */
+.column-header{
     display:grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns:1.2fr 1fr 1fr;
     gap:10px;
     margin-bottom:10px;
+    font-weight:bold;
+    font-size:15px;
+    color:#ffeb3b;
 }
 
-.team-row input{
-    padding:10px;
-    border-radius:6px;
-    border:none;
-    outline:none;
+/* Input Rows */
+.team-row{
+    display:grid;
+    grid-template-columns:1.2fr 1fr 1fr;
+    gap:10px;
+    margin-bottom:12px;
+}
+
+/* Team input */
+.team-name{
+    padding:12px;
+    border-radius:8px;
+    border:2px solid #ffeb3b;
+    font-weight:bold;
     font-size:14px;
 }
 
-.team-row input::placeholder{
-    color:#666;
+/* Player inputs */
+.player-name{
+    padding:10px;
+    border-radius:6px;
+    border:none;
+    background:#e0f2f1;
+    font-size:14px;
+}
+
+/* Buttons */
+.button-group{
+    display:flex;
+    gap:10px;
+    margin-top:20px;
 }
 
 button{
-    width:100%;
-    margin-top:20px;
+    flex:1;
     padding:14px;
     font-size:16px;
     font-weight:bold;
     border:none;
     border-radius:8px;
-    background:#00c853;
-    color:#000;
     cursor:pointer;
 }
 
-button:hover{
-    background:#00e676;
+.proceed-btn{
+    background:#00c853;
+    color:#000;
 }
 
-/* Mobile responsive */
+.export-btn{
+    background:#2196f3;
+    color:#fff;
+}
+
+.proceed-btn:hover{background:#00e676;}
+.export-btn:hover{background:#42a5f5;}
+
 @media(max-width:768px){
+    .column-header,
     .team-row{
         grid-template-columns:1fr;
     }
@@ -95,7 +129,7 @@ button:hover{
 
 <body>
 
-<div class="container">
+<div class="container" id="captureArea">
 
     <!-- Header -->
     <div class="header">
@@ -106,42 +140,52 @@ button:hover{
         <p><strong>Place:</strong> Beside Kakdwip Old Court</p>
     </div>
 
-    <!-- Input Card -->
     <div class="card">
+
         <h3 style="text-align:center;margin-bottom:15px;">
             Team & Player Entry (24 Teams)
         </h3>
+
+        <!-- Column headings row -->
+        <div class="column-header">
+            <div>Team Name</div>
+            <div>Player 1 Name</div>
+            <div>Player 2 Name</div>
+        </div>
 
         <form id="teamForm">
 
             <!-- Team 1 -->
             <div class="team-row">
-                <input type="text" class="team-name" placeholder="Team Name (Team 1)" required>
-                <input type="text" placeholder="Player 1 Name" required>
-                <input type="text" placeholder="Player 2 Name" required>
+                <input type="text" class="team-name" placeholder="Team 1" required>
+                <input type="text" class="player-name" placeholder="Player 1" required>
+                <input type="text" class="player-name" placeholder="Player 2" required>
             </div>
 
             <!-- Team 2 -->
             <div class="team-row">
-                <input type="text" class="team-name" placeholder="Team Name (Team 2)" required>
-                <input type="text" placeholder="Player 1 Name" required>
-                <input type="text" placeholder="Player 2 Name" required>
+                <input type="text" class="team-name" placeholder="Team 2" required>
+                <input type="text" class="player-name" placeholder="Player 1" required>
+                <input type="text" class="player-name" placeholder="Player 2" required>
             </div>
 
-            <!-- Teams 3 to 24 auto generated -->
+            <!-- Teams 3–24 -->
             <script>
                 for(let i=3;i<=24;i++){
                     document.write(`
                     <div class="team-row">
-                        <input type="text" class="team-name" placeholder="Team Name (Team ${i})" required>
-                        <input type="text" placeholder="Player 1 Name" required>
-                        <input type="text" placeholder="Player 2 Name" required>
+                        <input type="text" class="team-name" placeholder="Team ${i}" required>
+                        <input type="text" class="player-name" placeholder="Player 1" required>
+                        <input type="text" class="player-name" placeholder="Player 2" required>
                     </div>
                     `);
                 }
             </script>
 
-            <button type="submit">Proceed</button>
+            <div class="button-group">
+                <button type="submit" class="proceed-btn">Proceed</button>
+                <button type="button" class="export-btn" onclick="exportPDF()">Export PDF</button>
+            </div>
 
         </form>
     </div>
@@ -149,22 +193,35 @@ button:hover{
 </div>
 
 <script>
-document.getElementById("teamForm").addEventListener("submit", function(e){
+/* Save team names & redirect */
+document.getElementById("teamForm").addEventListener("submit",function(e){
     e.preventDefault();
 
-    let teamNames = [];
-    const teamInputs = document.querySelectorAll(".team-name");
-
-    teamInputs.forEach(input => {
+    let teamNames=[];
+    document.querySelectorAll(".team-name").forEach(input=>{
         teamNames.push(input.value.trim());
     });
 
-    // Save team names to localStorage
-    localStorage.setItem("teamNames", JSON.stringify(teamNames));
-
-    // Redirect to main app
-    window.location.href = "landing.html";
+    localStorage.setItem("teamNames",JSON.stringify(teamNames));
+    window.location.href="index.html";
 });
+
+/* Export full page to PDF */
+function exportPDF(){
+    const area=document.getElementById("captureArea");
+
+    html2canvas(area,{scale:2}).then(canvas=>{
+        const imgData=canvas.toDataURL("image/png");
+        const { jsPDF }=window.jspdf;
+
+        const pdf=new jsPDF("p","mm","a4");
+        const pdfWidth=pdf.internal.pageSize.getWidth();
+        const pdfHeight=(canvas.height*pdfWidth)/canvas.width;
+
+        pdf.addImage(imgData,"PNG",0,0,pdfWidth,pdfHeight);
+        pdf.save("Kakdwip_Shuttle_Showdown_2026.pdf");
+    });
+}
 </script>
 
 </body>
