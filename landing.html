@@ -218,60 +218,25 @@ function showLoader(text,cb){
   setTimeout(()=>{loader.style.display="none";cb();},700);
 }
 
-function drawGroups(){
-  const teams=[...document.querySelectorAll("input")]
-    .map(i=>i.value.trim()).filter(Boolean);
 
-  if(teams.length!==24){
-    alert("Enter exactly 24 teams");return;
-  }
+function drawGroups(){
 
   showLoader("Drawing Groups...",()=>{
-    groups={A:[],B:[],C:[]};
-    const map={};
 
-    teams.forEach(t=>{
-      const p=t.substring(0,2).toUpperCase();
-      if(!map[p]) map[p]=[];
-      map[p].push(t);
-    });
-
-    let remaining=[];
-
-    Object.values(map).forEach(list=>{
-      shuffle(list);
-
-      while(list.length>=4){
-        const block=list.splice(0,4);
-        shuffle(block);
-        const g=["A","B","C"];shuffle(g);
-        const third=g[2];
-        groups[g[0]].push(block[0]);
-        groups[g[1]].push(block[1]);
-        groups[third].push(block[2],block[3]);
-      }
-
-      if(list.length===3){
-        ["A","B","C"].forEach((g,i)=>groups[g].push(list[i]));
-      }else if(list.length===2){
-        const g=["A","B","C"];shuffle(g);
-        groups[g[0]].push(list[0]);
-        groups[g[1]].push(list[1]);
-      }else if(list.length===1){
-        remaining.push(list[0]);
-      }
-    });
-
-    shuffle(remaining);
-    remaining.forEach(t=>{
-      const avail=["A","B","C"].filter(g=>groups[g].length<MAX);
-      groups[avail[Math.floor(Math.random()*avail.length)]].push(t);
-    });
+    // 🔒 HARD CODED GROUPS
+    groups = {
+      A: ["BL1","GS1","KV1","RG1","HH","AM1","KS1","RC"],
+      B: ["BL2","GS2","RG2","KV2","CH","BG","RC2","BL5"],
+      C: ["BL3","BL4","KV3","SD","YY","WW","QQ","PP"]
+    };
 
     renderGroups();
-    matchBtn.disabled=false;
+    matchBtn.disabled = false;
+
   });
 }
+
+
 
 async function renderGroups() {
 
