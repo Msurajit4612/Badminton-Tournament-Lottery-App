@@ -218,7 +218,6 @@ function showLoader(text,cb){
   setTimeout(()=>{loader.style.display="none";cb();},700);
 }
 
-
 function drawGroups(){
 
   showLoader("Drawing Groups...",()=>{
@@ -235,9 +234,6 @@ function drawGroups(){
 
   });
 }
-
-
-
 async function renderGroups() {
 
   // Fill group data
@@ -336,6 +332,7 @@ async function groupMatches() {
     nextBtn.disabled = false;
   });
 }
+
 
 function nextRound(){
   showLoader("Next Round...",()=>{
