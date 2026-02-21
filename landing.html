@@ -225,9 +225,9 @@ function drawGroups(){
 
     // 🔒 HARD CODED GROUPS
     groups = {
-      A: ["BL1","GS1","KV1","RG1","CH","AM1","KS","RC"],
-      B: ["BL2","GS2","RG2","KV2","BC","DS1","RG3","BL5"],
-      C: ["BL3","BL4","KV3","DS2","BG","AM2","SS","BD"]
+  A: ["BL1","BL3","FF","AM1","BC1","SK","RC","KV1"],
+      B: ["BL4","BL2","GS2","RG1","DS2","SA","KV2","BM"],
+      C: ["BD","GS1","DS1","BC2","BL5","AM2","RG2","CH"]
     };
 
     renderGroups();
@@ -243,7 +243,7 @@ async function renderGroups() {
   // Fill group data
   ["A", "B", "C"].forEach(g => {
     document.getElementById("group" + g).innerHTML =
-      groups[g].map(t => `<li>${t}</li>`).join("");
+      groups[g].map(t => <li>${t}</li>).join("");
   });
 
   const spinner = document.getElementById("groupSpinner");
@@ -280,16 +280,31 @@ async function renderGroups() {
 async function groupMatches() {
   showLoader("Group Matches...", async () => {
 
-    // Generate Super 24 matches
-    ["A", "B", "C"].forEach(g => {
-      let t = [...groups[g]];
-      shuffle(t);
-      document.getElementById("match" + g).innerHTML =
-        `<li>${t[0]} 🆚 ${t[1]}</li>
-         <li>${t[2]} 🆚 ${t[3]}</li>
-         <li>${t[4]} 🆚 ${t[5]}</li>
-         <li>${t[6]} 🆚 ${t[7]}</li>`;
-    });
+    // 🔒 HARD CODED SUPER 24 MATCHES
+
+    // Group A
+    document.getElementById("matchA").innerHTML = `
+      <li>FF 🆚 KV1</li>
+      <li>AM1 🆚 BL31</li>
+      <li>BL1 🆚 BC1</li>
+      <li>SK 🆚 RC</li>
+    `;
+
+    // Group B
+    document.getElementById("matchB").innerHTML = `
+      <li>BL4 🆚 GS2</li>
+      <li>RG1 🆚 DS2</li>
+      <li>SA 🆚 KV2</li>
+      <li>BL2 🆚 BM</li>
+    `;
+
+    // Group C
+    document.getElementById("matchC").innerHTML = `
+      <li>GS1 🆚 BD</li>
+      <li>RG2 🆚 DS1</li>
+      <li>BL5 🆚 AM2</li>
+      <li>BC2 🆚 CH</li>
+    `;
 
     const spinner = document.getElementById("Super24Spinner");
     const spinnerText = document.getElementById("Super24spinnerText");
@@ -306,18 +321,15 @@ async function groupMatches() {
     async function revealMatch(matchBox, text) {
       spinnerText.textContent = text;
       spinner.style.display = "block";
-
-      await wait(2000);        // 🏸 spinner duration
-
+      await wait(2000);
       spinner.style.display = "none";
       matchBox.style.display = "block";
-
       await wait(300);
     }
 
     // Sequential reveal
-    await revealMatch(matchA, "Preparing Match for Match A...");
-    await revealMatch(matchB, "Preparing Match for Match B...");
+    await revealMatch(matchA, "Preparing Match for Group A...");
+    await revealMatch(matchB, "Preparing Match for Group B...");
     await revealMatch(matchC, "Preparing Match for Group C...");
 
     // Enable next round
@@ -378,9 +390,9 @@ function superSix(){
     ];
     shuffle(six);
     document.getElementById("groupE").innerHTML=
-      six.slice(0,3).map(t=>`<li>${t}</li>`).join("");
+      six.slice(0,3).map(t=><li>${t}</li>).join("");
     document.getElementById("groupF").innerHTML=
-      six.slice(3).map(t=>`<li>${t}</li>`).join("");
+      six.slice(3).map(t=><li>${t}</li>).join("");
   });
 }
 </script>
